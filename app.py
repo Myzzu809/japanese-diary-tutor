@@ -256,7 +256,7 @@ with tab1:
         st.divider()
         st.subheader("🌸 자연스러운 일본어")
         st.info(r["corrected"])
-        if r.get("input_conversions"):
+if r.get("input_conversions"):
     st.subheader("🔤 한글 → 일본어 변환")
 
     for item in r["input_conversions"]:
