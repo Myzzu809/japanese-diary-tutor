@@ -47,27 +47,127 @@ def get_history():
 
 def analyze_diary(api_key, diary):
     client = OpenAI(api_key=api_key)
-    prompt = f'''당신은 한국인 일본어 학습자를 위한 친절한 일본어 원어민 선생님입니다. 학습자는 왕초보~초중급입니다.
-아래 일본어 일기를 분석하세요.
 
-[일기]\n{diary}
+    prompt = f"""
+당신은 초급 일본어 학습자를 위한 '일본어 일기 선생님'입니다.
 
-반드시 JSON 형식으로만 답하세요.
+사용자가 일본어와 한글을 섞어서 일기를 입력할 수 있습니다.
+
+반드시 다음 규칙을 지켜 주세요.
+
+1. 한글로 입력된 단어 또는 문장은 문맥에 맞는 자연스러운 일본어로 변환합니다.
+
+2. 사용자가 일본어 단어를 한글 발음으로 입력한 경우도 일본어로 변환합니다.
+예:
+- 와타시 → 私
+- 아나타 → あなた
+- 쿄우 → 今日
+- 토모다치 → 友達
+- 카이모노 → 買い物
+- 타베루 → 食べる
+- 오이시이 → おいしい
+
+3. 단순히 한글 발음을 일본어로 옮기는 것이 아니라 문맥을 보고 가장 자연스러운 일본어 단어를 선택합니다.
+
+4. 일본어 문법이나 표현이 어색하면 자연스러운 일본어로 고칩니다.
+
+5. 최종 corrected에는 한글이 남지 않도록 합니다.
+모든 한글 표현과 한글 발음 표현을 자연스러운 일본어로 변환합니다.
+
+6. corrected에는 중요한 한자에 후리가나를 붙입니다.
+예:
+私（わたし）
+今日（きょう）
+友達（ともだち）
+買い物（かいもの）
+行（い）きました
+
+7. 초급 학습자가 이해하기 쉽게 설명합니다.
+
+8. 원래 문장의 의미와 분위기는 최대한 유지합니다.
+사용자가 쓴 내용을 임의로 크게 바꾸지 않습니다.
+
+9. vocabulary에는 일기에서 공부하기 좋은 단어 5~10개를 선정합니다.
+
+10. corrections에는 중요한 교정 내용을 설명합니다.
+
+11. input_conversions에는 한글 또는 한글 발음으로 입력된 부분이 어떻게 일본어로 변환되었는지 기록합니다.
+
+다음 일기를 분석해 주세요.
+
+[일기]
+{diary}
+
+반드시 아래 JSON 형식으로만 답하세요.
+
 {{
-  "corrected": "자연스러운 일본어로 고친 전체 일기",
-  "summary_ko": "일기의 자연스러운 한국어 요약",
+  "corrected": "자연스럽게 교정된 일본어. 중요한 한자에는 후리가나를 붙입니다.",
+  "summary_ko": "일기의 내용을 한국어로 간단히 요약",
   "level": "N5/N4/N3/N2/N1 중 하나",
-  "corrections": [{{"original":"원래 표현","corrected":"수정 표현","type":"문법 오류/자연스러운 표현/단어 선택/조사/활용/기타 중 하나","reason_ko":"왕초보도 이해할 수 있게 쉬운 한국어 설명","mini_example":"짧은 예문","mini_example_ko":"예문 뜻"}}],
-  "vocabulary": [{{"word":"단어","furigana":"히라가나","meaning_ko":"뜻","part_of_speech":"품사","example":"짧은 예문","example_ko":"예문 뜻"}}],
-  "expressions": [{{"expression":"주요 표현","furigana":"히라가나","meaning_ko":"뜻","example":"짧은 예문","example_ko":"예문 뜻"}}],
-  "review_question": {{"question":"짧은 객관식 문제","options":["보기1","보기2","보기3"],"answer":"정답 보기","explanation":"쉬운 설명"}},
-  "beginner_tip":"오늘 꼭 기억할 초보자용 핵심 팁"
+
+  "input_conversions": [
+    {{
+      "original": "사용자가 한글 또는 한글 발음으로 입력한 부분",
+      "converted": "변환된 일본어",
+      "reason_ko": "왜 이렇게 변환했는지 간단한 설명"
+    }}
+  ],
+
+  "corrections": [
+    {{
+      "original": "원래 표현",
+      "corrected": "교정 표현",
+      "type": "문법/자연스러운 표현/단어 선택/조사/활용 등",
+      "reason_ko": "왜 고쳤는지 한국어 설명",
+      "mini_example": "간단한 일본어 예문",
+      "mini_example_ko": "예문의 한국어 뜻"
+    }}
+  ],
+
+  "vocabulary": [
+    {{
+      "word": "단어",
+      "furigana": "후리가나",
+      "meaning_ko": "한국어 뜻",
+      "part_of_speech": "품사",
+      "example": "일본어 예문",
+      "example_ko": "한국어 뜻"
+    }}
+  ],
+
+  "expressions": [
+    {{
+      "expression": "표현",
+      "meaning_ko": "한국어 뜻",
+      "example": "일본어 예문",
+      "example_ko": "한국어 뜻"
+    }}
+  ],
+
+  "review_question": {{
+    "question": "복습 문제",
+    "options": ["보기1", "보기2", "보기3"],
+    "answer": "정답",
+    "explanation": "정답 설명"
+  }},
+
+  "beginner_tip": "초급 학습자를 위한 짧은 팁"
 }}
-규칙: 원문의 의미와 감정은 바꾸지 마세요. 맞는 문장은 억지로 고치지 마세요. 실제로 고칠 가치가 있는 항목만 corrections에 넣으세요. vocabulary는 공부 가치가 높은 단어 5~10개를 고르세요. 한자 단어는 정확한 후리가나를 적으세요. 예문은 짧고 쉽게 만드세요. review_question은 오늘 일기에서 실제로 배운 표현을 사용하세요.'''
-    response = client.responses.create(model="gpt-5", input=prompt)
+
+[일기]
+{diary}
+"""
+
+    response = client.responses.create(
+        model="gpt-5",
+        input=prompt
+    )
+
     text = response.output_text.strip()
+
     if text.startswith("```"):
         text = text.split("\n", 1)[1].rsplit("```", 1)[0]
+
     return json.loads(text)
 
 
