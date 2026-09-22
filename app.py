@@ -256,6 +256,15 @@ with tab1:
         st.divider()
         st.subheader("🌸 자연스러운 일본어")
         st.info(r["corrected"])
+        if r.get("input_conversions"):
+    st.subheader("🔤 한글 → 일본어 변환")
+
+    for item in r["input_conversions"]:
+        st.markdown(
+            f"**{item['original']} → {item['converted']}**"
+        )
+        if item.get("reason_ko"):
+            st.caption(item["reason_ko"])
         if st.button("🔊 일본어 읽어주기", key="read_corrected"): speak(r["corrected"])
         st.caption(f"예상 JLPT 난이도: **{r.get('level','N/A')}**")
         st.subheader("🇰🇷 한국어로 뜻 확인")
